@@ -35,8 +35,8 @@
       '<p>Honest note: my assistants are pattern and template based, not cloud LLMs. They are built to be clear, testable portfolio demos.</p>';
   }
   function meCard() {
-    return '<h2>Who am I?</h2><p><strong>Ali Raza</strong> — AI Developer, BSAI from UMT Lahore (2024), based in Lahore, Pakistan.</p>' +
-      '<p>I build AI chatbots, web apps and small useful libraries, end to end: idea, design, code, tests and GitHub. I am currently looking for my first full-time role where I can keep building real products.</p>' +
+    return '<h2>Who am I?</h2><p><strong>Ali Raza</strong> — AI Web Developer, BSAI from UMT Lahore (2024), based in Lahore, Pakistan.</p>' +
+      '<p>I build AI chatbots, web apps and small useful libraries, end to end: idea, design, code, tests and GitHub. I am currently looking for an AI Web Developer role where I can keep building real products.</p>' +
       '<div class="btnrow"><a class="btn" href="#" data-go="contact">Contact me</a><a class="btn green" href="https://github.com/Ali-Raza-161" target="_blank" rel="noreferrer">GitHub</a></div>';
   }
   function projectsCard() {
@@ -55,7 +55,7 @@
   }
   function contactCard() {
     return '<h2>Contact</h2><p><strong>Ali Raza</strong> — Available for work.</p>' +
-      '<p>I am open to junior AI / web developer roles and freelance chatbot or website work.</p>' +
+      '<p>I am open to AI Web Developer roles and freelance chatbot or website work.</p>' +
       '<p>📞 <a href="tel:+923082056996">0308 2056996</a><br>✉️ <a href="mailto:mr.aliraza161.9l@gmail.com">mr.aliraza161.9l@gmail.com</a><br>📍 Lahore, Pakistan</p>' +
       '<div class="btnrow"><a class="btn" href="https://github.com/Ali-Raza-161" target="_blank" rel="noreferrer">GitHub: Ali-Raza-161</a></div>';
   }
