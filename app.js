@@ -98,17 +98,43 @@
     });
   });
   form.addEventListener('submit', function (e) { e.preventDefault(); var q = input.value.trim(); if (!q) return; input.value = ''; answer(q); });
-  // Cursor colour effect — colourful soft orbs follow the mouse and fade away.
+  // Cursor colour effect — fresh trail fluid: mouse velocity spawns swirling
+  // coloured particles that leave wispy trails, then fade away. Not a copy
+  // of anyone else's fluid solver; this is a small particle trail system.
   (function () {
     var canvas = document.getElementById('cursorFx'); if (!canvas) return;
-    var ctx = canvas.getContext('2d'); var parts = []; var colors = [[37, 99, 235], [147, 51, 234], [236, 72, 153], [0, 168, 132], [245, 158, 11]]; function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+    var ctx = canvas.getContext('2d'); var parts = [];
+    var colors = [[225, 29, 72], [14, 165, 164], [37, 99, 235], [147, 51, 234], [236, 72, 153], [245, 158, 11]];
+    function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     resize(); window.addEventListener('resize', resize);
-    var lastX = null, lastY = null;
-    function add(x, y) { var dx = lastX === null ? 0 : x - lastX, dy = lastY === null ? 0 : y - lastY; lastX = x; lastY = y; var speed = Math.min(Math.sqrt(dx * dx + dy * dy), 40); var big = colors[Math.floor(Math.random() * colors.length)]; parts.push({ x: x, y: y, cx: x, cy: y, angle: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.08, dist: 0, r: 60 + Math.random() * 50 + speed, c: big, a: 0.38, vx: dx * 0.3, vy: dy * 0.3, big: true }); for (var i = 0; i < 3; i++) { parts.push({ x: x + (Math.random() - 0.5) * 30, y: y + (Math.random() - 0.5) * 30, cx: x, cy: y, angle: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.1, dist: 0, r: 12 + Math.random() * 20, c: colors[Math.floor(Math.random() * colors.length)], a: 0.75, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, big: false }); } if (parts.length > 260) parts.splice(0, parts.length - 260); }
+    var lastX = null, lastY = null, lastT = 0;
+    function add(x, y) {
+      var now = Date.now(); var dx = lastX === null ? 0 : x - lastX, dy = lastY === null ? 0 : y - lastY; lastX = x; lastY = y; lastT = now;
+      var n = 14 + Math.min(Math.floor(Math.sqrt(dx * dx + dy * dy)), 20);
+      for (var i = 0; i < n; i++) {
+        var c = colors[Math.floor(Math.random() * colors.length)];
+        parts.push({ x: x + (Math.random() - 0.5) * 24, y: y + (Math.random() - 0.5) * 24, vx: dx * 0.35 + (Math.random() - 0.5) * 2, vy: dy * 0.35 + (Math.random() - 0.5) * 2, r: 5 + Math.random() * 14, c: c, life: 1, spin: (Math.random() - 0.5) * 0.12, angle: Math.random() * Math.PI * 2 });
+      }
+      // one large soft wash blob at the cursor, so colour is visible at once
+      parts.push({ x: x, y: y, vx: dx * 0.2, vy: dy * 0.2, r: 70 + Math.random() * 40, c: colors[Math.floor(Math.random() * colors.length)], life: 0.55, spin: 0, angle: 0, wash: true });
+      if (parts.length > 600) parts.splice(0, parts.length - 600);
+    }
     document.addEventListener('mousemove', function (e) { add(e.clientX, e.clientY); });
     document.addEventListener('touchmove', function (e) { if (e.touches[0]) add(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-    (function tick() { ctx.clearRect(0, 0, canvas.width, canvas.height); parts = parts.filter(function (p) { return p.a > 0.02; }); parts.forEach(function (p) { p.angle += p.spin; p.dist += 0.6; p.x = p.cx + Math.cos(p.angle) * p.dist + p.vx; p.y = p.cy + Math.sin(p.angle) * p.dist + p.vy; p.vx *= 0.98; p.vy *= 0.98; p.a -= p.big ? 0.003 : 0.008; var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); if (p.big) { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(0.6, rgba(p.c, Math.max(p.a * 0.7, 0))); g.addColorStop(1, rgba(p.c, 0)); } else { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(1, rgba(p.c, 0)); } ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }); requestAnimationFrame(tick); })();
+    (function tick() {
+      // fade trails slowly without covering the page underneath
+      ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'rgba(0,0,0,0.06)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+      parts = parts.filter(function (p) { return p.life > 0.02; });
+      parts.forEach(function (p) {
+        p.angle += p.spin; p.x += p.vx + Math.cos(p.angle) * 0.7; p.y += p.vy + Math.sin(p.angle) * 0.7; p.vx *= 0.985; p.vy *= 0.985; p.life -= p.wash ? 0.004 : 0.012;
+        var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, rgba(p.c, Math.max(p.life, 0) * (p.wash ? 0.55 : 0.9))); g.addColorStop(0.6, rgba(p.c, Math.max(p.life * 0.5, 0))); g.addColorStop(1, rgba(p.c, 0));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      });
+      requestAnimationFrame(tick);
+    })();
   })();
   // Expose for tests
   window.__portfolio = { projects: projects, answer: answer, renderTopic: renderTopic };
