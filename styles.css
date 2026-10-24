@@ -24,7 +24,7 @@
 .card p{line-height:1.6;color:#333}.back{background:none;border:0;color:#2563eb;font-weight:700;cursor:pointer;padding:0;margin-bottom:8px}
 .pillrow{display:flex;flex-wrap:wrap;gap:8px}.skillpill{background:#eef4ff;border:1px solid #dbeafe;padding:7px 12px;border-radius:999px;font-size:14px}
 .skillpill.purple{background:#f5efff;border-color:#e9d5ff}.skillpill.green{background:#ecfdf5;border-color:#bbf7d0}.skillpill.yellow{background:#fffbeb;border-color:#fde68a}.skillpill.pink{background:#fdf2f8;border-color:#fbcfe8}
-.proj{display:grid;gap:12px}.proj-card{border:1px solid #e5e7eb;border-radius:16px;padding:14px}
+.proj{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}.proj-card{border:1px solid #e5e7eb;border-radius:16px;padding:14px;min-width:280px;flex:0 0 280px;scroll-snap-align:start}
 .proj-card strong{font-size:17px}.proj-card p{margin:6px 0;color:#444}.tag{display:inline-block;background:#111;color:#fff;font-size:12px;padding:4px 9px;border-radius:999px}
 .proj-card a{color:#2563eb;font-weight:700;text-decoration:none}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.filters button{border:1px solid #ddd;background:#fff;padding:7px 12px;border-radius:999px;cursor:pointer}.filters button.active{background:#111;color:#fff}

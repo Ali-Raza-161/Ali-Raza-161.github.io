@@ -42,16 +42,25 @@
   function projectsCard() {
     var filters = ['All', 'AI Chatbot', 'Web', 'Library'];
     var list = projects.filter(function (p) { return currentFilter === 'All' || p.tag === currentFilter; });
-    var html = '<h2>My Projects</h2><div class="filters">' + filters.map(function (f) { return '<button data-filter="' + f + '" class="' + (f === currentFilter ? 'active' : '') + '">' + f + '</button>'; }).join('') + '</div><div class="proj">';
+    var html = '<h2>My Projects</h2><div class="filters">' + filters.map(function (f) { return '<button data-filter="' + f + '" class="' + (f === currentFilter ? 'active' : '') + '">' + f + '</button>'; }).join('') + '</div><div style="display:flex;gap:8px;margin:10px 0;"><button data-carousel="prev">‹ Prev</button><button data-carousel="next">Next ›</button></div><div class="proj" id="projCarousel">';
     list.forEach(function (p) { html += '<div class="proj-card"><span class="tag">' + p.tag + '</span><br><strong>' + p.title + '</strong><p>' + p.desc + '</p><a href="' + p.link + '" target="_blank" rel="noreferrer">Code on GitHub ↗</a></div>'; });
-    html += '</div><p>' + list.length + ' projects shown.</p>';
+    html += '</div><p>' + list.length + ' projects shown. Cards ko aage peeche scroll kar ke dekhen.</p>';
     return html;
   }
   function demoCard() {
-    return '<h2>Agent Demo</h2><p>This is a live demo of the same idea behind SupportPilot: a small support assistant that answers from a fixed set of answers.</p>' +
-      '<p><strong>Try in the question box:</strong> “pricing”, “demo kaise kaam karta hai”, or “projects dikhao”.</p>' +
-      '<p><strong>SupportPilot demo answers:</strong> Pricing is Free / Pro / Business with a monthly and yearly toggle. The chatbot answers common support questions, and anything it cannot answer becomes a ticket.</p>' +
-      '<p>This demo runs fully in your browser. No message is sent anywhere.</p>';
+    return '<h2>Agent Demo</h2><p><strong>AliCare Demo Clinic, Lahore</strong> — ye ek fictional demo clinic hai, sirf ye dikhane ke liye ke AI receptionist kaise kaam karta hai. Koi asli appointment book nahi hoti, sab kuch aap ke browser me hota hai.</p>' +
+      '<div id="demoChat" style="border:1px solid #e5e7eb;border-radius:14px;padding:12px;"><p><strong>Demo assistant:</strong> Hello, welcome to AliCare Demo Clinic. How can I help you today?</p><div id="demoMsgs"></div><div id="demoBtns" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"><button data-demo="book">Book an appointment</button><button data-demo="hours">Opening hours</button><button data-demo="prices">Prices</button></div><div id="demoName" style="display:none;margin-top:10px;"><input id="demoNameInput" type="text" placeholder="Apna naam likhen" style="padding:10px;border:1px solid #ddd;border-radius:999px;width:70%;"><button id="demoNameBtn">Confirm</button></div></div>' +
+      '<p id="demoResult"></p>';
+  }
+  function initDemo(el) {
+    var msgs = el.querySelector('#demoMsgs'); var btns = el.querySelector('#demoBtns'); var nameBox = el.querySelector('#demoName'); var result = el.querySelector('#demoResult'); var state = { step: 'start', service: '', day: '', time: '' };
+    function say(t) { var p = document.createElement('p'); p.textContent = t; msgs.appendChild(p); }
+    function setBtns(list) { btns.innerHTML = ''; list.forEach(function (b) { var btn = document.createElement('button'); btn.textContent = b.label; btn.addEventListener('click', function () { b.fn(); }); btns.appendChild(btn); }); }
+    function askDay() { state.step = 'day'; say('Kaun se din chahiye?'); setBtns([{ label: 'Today', fn: function () { state.day = 'Today'; askTime(); } }, { label: 'Tomorrow', fn: function () { state.day = 'Tomorrow'; askTime(); } }, { label: 'Monday', fn: function () { state.day = 'Monday'; askTime(); } }]); }
+    function askTime() { state.step = 'time'; say('Kaun sa time chahiye?'); setBtns([{ label: '10:00 AM', fn: function () { state.time = '10:00 AM'; askName(); } }, { label: '12:00 PM', fn: function () { state.time = '12:00 PM'; askName(); } }, { label: '3:00 PM', fn: function () { state.time = '3:00 PM'; askName(); } }, { label: '5:00 PM', fn: function () { state.time = '5:00 PM'; askName(); } }]); }
+    function askName() { state.step = 'name'; say('Apna naam likhen aur Confirm dabayen.'); nameBox.style.display = ''; }
+    el.querySelector('#demoNameBtn').addEventListener('click', function () { var n = el.querySelector('#demoNameInput').value.trim(); if (!n) return; nameBox.style.display = 'none'; setBtns([]); result.textContent = '✅ Appointment confirmed (demo): ' + state.service + ', ' + state.day + ', ' + state.time + ', naam: ' + n + '. Ye sirf demo hai, koi asli booking nahi hui.'; say('Shukriya ' + n + '! Aap ki demo appointment confirm ho gayi hai.'); });
+    btns.querySelectorAll('[data-demo]').forEach(function (b) { b.addEventListener('click', function () { var k = b.getAttribute('data-demo'); if (k === 'hours') { say('Opening hours: Monday to Saturday, 9:00 AM to 8:00 PM. Sunday closed.'); } else if (k === 'prices') { say('Prices (demo): Checkup Rs 1,000, Cleaning Rs 2,500, Filling Rs 3,500. Book karna chahen to Book an appointment dabayen.'); } else { state.step = 'service'; say('Kaun si service chahiye?'); setBtns([{ label: 'Checkup', fn: function () { state.service = 'Checkup'; askDay(); } }, { label: 'Cleaning', fn: function () { state.service = 'Cleaning'; askDay(); } }, { label: 'Filling', fn: function () { state.service = 'Filling'; askDay(); } }]); } }); });
   }
   function contactCard() {
     return '<h2>Contact</h2><p><strong>Ali Raza</strong> — Available for work.</p>' +
@@ -68,6 +77,8 @@
     var el = card(html);
     el.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function (e) { e.preventDefault(); renderTopic(b.getAttribute('data-go'), 'Contact'); }); });
     el.querySelectorAll('[data-filter]').forEach(function (b) { b.addEventListener('click', function () { currentFilter = b.getAttribute('data-filter'); renderTopic('projects', 'Projects'); }); });
+    el.querySelectorAll('[data-carousel]').forEach(function (b) { b.addEventListener('click', function () { var c = el.querySelector('#projCarousel'); if (c) c.scrollBy({ left: b.getAttribute('data-carousel') === 'next' ? 300 : -300, behavior: 'smooth' }); }); });
+    if (topic === 'demo') initDemo(el);
   }
   function answer(q) {
     var t = q.toLowerCase();
@@ -93,10 +104,11 @@
     var ctx = canvas.getContext('2d'); var parts = []; var colors = [[37, 99, 235], [147, 51, 234], [236, 72, 153], [0, 168, 132], [245, 158, 11]]; function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     resize(); window.addEventListener('resize', resize);
-    function add(x, y) { var big = colors[Math.floor(Math.random() * colors.length)]; parts.push({ x: x, y: y, r: 60 + Math.random() * 50, c: big, a: 0.38, vx: (Math.random() - 0.5) * 0.6, vy: (Math.random() - 0.5) * 0.6, big: true }); for (var i = 0; i < 3; i++) { parts.push({ x: x + (Math.random() - 0.5) * 30, y: y + (Math.random() - 0.5) * 30, r: 12 + Math.random() * 20, c: colors[Math.floor(Math.random() * colors.length)], a: 0.75, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, big: false }); } if (parts.length > 260) parts.splice(0, parts.length - 260); }
+    var lastX = null, lastY = null;
+    function add(x, y) { var dx = lastX === null ? 0 : x - lastX, dy = lastY === null ? 0 : y - lastY; lastX = x; lastY = y; var speed = Math.min(Math.sqrt(dx * dx + dy * dy), 40); var big = colors[Math.floor(Math.random() * colors.length)]; parts.push({ x: x, y: y, cx: x, cy: y, angle: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.08, dist: 0, r: 60 + Math.random() * 50 + speed, c: big, a: 0.38, vx: dx * 0.3, vy: dy * 0.3, big: true }); for (var i = 0; i < 3; i++) { parts.push({ x: x + (Math.random() - 0.5) * 30, y: y + (Math.random() - 0.5) * 30, cx: x, cy: y, angle: Math.random() * Math.PI * 2, spin: (Math.random() - 0.5) * 0.1, dist: 0, r: 12 + Math.random() * 20, c: colors[Math.floor(Math.random() * colors.length)], a: 0.75, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, big: false }); } if (parts.length > 260) parts.splice(0, parts.length - 260); }
     document.addEventListener('mousemove', function (e) { add(e.clientX, e.clientY); });
     document.addEventListener('touchmove', function (e) { if (e.touches[0]) add(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-    (function tick() { ctx.clearRect(0, 0, canvas.width, canvas.height); parts = parts.filter(function (p) { return p.a > 0.02; }); parts.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.a -= p.big ? 0.003 : 0.008; var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); if (p.big) { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(0.6, rgba(p.c, Math.max(p.a * 0.7, 0))); g.addColorStop(1, rgba(p.c, 0)); } else { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(1, rgba(p.c, 0)); } ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }); requestAnimationFrame(tick); })();
+    (function tick() { ctx.clearRect(0, 0, canvas.width, canvas.height); parts = parts.filter(function (p) { return p.a > 0.02; }); parts.forEach(function (p) { p.angle += p.spin; p.dist += 0.6; p.x = p.cx + Math.cos(p.angle) * p.dist + p.vx; p.y = p.cy + Math.sin(p.angle) * p.dist + p.vy; p.vx *= 0.98; p.vy *= 0.98; p.a -= p.big ? 0.003 : 0.008; var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); if (p.big) { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(0.6, rgba(p.c, Math.max(p.a * 0.7, 0))); g.addColorStop(1, rgba(p.c, 0)); } else { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(1, rgba(p.c, 0)); } ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }); requestAnimationFrame(tick); })();
   })();
   // Expose for tests
   window.__portfolio = { projects: projects, answer: answer, renderTopic: renderTopic };
