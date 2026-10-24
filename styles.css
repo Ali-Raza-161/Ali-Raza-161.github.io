@@ -3,7 +3,7 @@
 .blobs i{position:absolute;width:340px;height:340px;border-radius:50%;filter:blur(70px);opacity:.45;animation:drift 18s ease-in-out infinite alternate}
 .b1{background:#7ddf8a;left:-80px;top:-60px}.b2{background:#7cc4ff;right:-90px;top:20%}.b3{background:#d9a7ff;left:8%;bottom:-120px}.b4{background:#ffb3c7;right:12%;bottom:-80px;animation-delay:-6s}.b5{background:#ffe58a;left:45%;top:-100px;animation-delay:-12s}
 @keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,50px) scale(1.15)}}
-#cursorFx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#cursorFx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
 .shell{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:18px 16px 8px;min-height:100vh;display:flex;flex-direction:column}
 .proj-card{transition:border-color .2s,box-shadow .2s,transform .2s}.proj-card:hover{border-color:#9333ea;box-shadow:0 14px 34px rgba(147,51,234,.18);transform:translateY(-2px)}
 .pills button{transition:background .2s,color .2s,border-color .2s}.pills button:hover{background:linear-gradient(90deg,#2563eb,#9333ea,#ec4899);color:#fff;border-color:transparent}

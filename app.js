@@ -90,13 +90,13 @@
   // Cursor colour effect — colourful soft orbs follow the mouse and fade away.
   (function () {
     var canvas = document.getElementById('cursorFx'); if (!canvas) return;
-    var ctx = canvas.getContext('2d'); var parts = []; var colors = ['#2563eb', '#9333ea', '#ec4899', '#00a884', '#f59e0b'];
+    var ctx = canvas.getContext('2d'); var parts = []; var colors = [[37, 99, 235], [147, 51, 234], [236, 72, 153], [0, 168, 132], [245, 158, 11]]; function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     resize(); window.addEventListener('resize', resize);
-    function add(x, y) { for (var i = 0; i < 4; i++) { parts.push({ x: x + (Math.random() - 0.5) * 30, y: y + (Math.random() - 0.5) * 30, r: 12 + Math.random() * 20, c: colors[Math.floor(Math.random() * colors.length)], a: 0.75, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8 }); } if (parts.length > 260) parts.splice(0, parts.length - 260); }
+    function add(x, y) { var big = colors[Math.floor(Math.random() * colors.length)]; parts.push({ x: x, y: y, r: 60 + Math.random() * 50, c: big, a: 0.38, vx: (Math.random() - 0.5) * 0.6, vy: (Math.random() - 0.5) * 0.6, big: true }); for (var i = 0; i < 3; i++) { parts.push({ x: x + (Math.random() - 0.5) * 30, y: y + (Math.random() - 0.5) * 30, r: 12 + Math.random() * 20, c: colors[Math.floor(Math.random() * colors.length)], a: 0.75, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, big: false }); } if (parts.length > 260) parts.splice(0, parts.length - 260); }
     document.addEventListener('mousemove', function (e) { add(e.clientX, e.clientY); });
     document.addEventListener('touchmove', function (e) { if (e.touches[0]) add(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-    (function tick() { ctx.clearRect(0, 0, canvas.width, canvas.height); parts = parts.filter(function (p) { return p.a > 0.02; }); parts.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.a -= 0.008; ctx.globalAlpha = Math.max(p.a, 0); ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }); ctx.globalAlpha = 1; requestAnimationFrame(tick); })();
+    (function tick() { ctx.clearRect(0, 0, canvas.width, canvas.height); parts = parts.filter(function (p) { return p.a > 0.02; }); parts.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.a -= p.big ? 0.003 : 0.008; var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); if (p.big) { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(0.6, rgba(p.c, Math.max(p.a * 0.7, 0))); g.addColorStop(1, rgba(p.c, 0)); } else { g.addColorStop(0, rgba(p.c, Math.max(p.a, 0))); g.addColorStop(1, rgba(p.c, 0)); } ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }); requestAnimationFrame(tick); })();
   })();
   // Expose for tests
   window.__portfolio = { projects: projects, answer: answer, renderTopic: renderTopic };
